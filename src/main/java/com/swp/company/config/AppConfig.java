@@ -82,10 +82,10 @@ public class AppConfig implements WebMvcConfigurer {
         http
                 .cors(cors -> cors.configurationSource(request -> {
                     var corsConfig = new org.springframework.web.cors.CorsConfiguration();
-                    corsConfig.setAllowedOrigins(List.of("http://localhost:5173"));
-                    corsConfig.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH"));
-                    corsConfig.setAllowedHeaders(List.of("*"));
-                    corsConfig.setAllowCredentials(true);
+                    corsConfig.setAllowedOriginPatterns(List.of("*")); // cho mọi origin
+                    corsConfig.setAllowedMethods(List.of("*"));        // cho mọi method
+                    corsConfig.setAllowedHeaders(List.of("*"));        // cho mọi header
+                    corsConfig.setAllowCredentials(true);              // nếu FE gửi kèm cookie/Authorization
                     return corsConfig;
                 }))
                 .csrf(AbstractHttpConfigurer::disable)
