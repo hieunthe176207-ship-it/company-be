@@ -1,0 +1,32 @@
+version: "3.8"
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: mysql-company
+    environment:
+      MYSQL_ROOT_PASSWORD: 123456
+      MYSQL_DATABASE: company
+      MYSQL_USER: hieu
+      MYSQL_PASSWORD: 12345
+    ports:
+      - "3307:3306"     # Từ máy thật connect = localhost:3307
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+  backend:
+    build: .
+    container_name: spring-company
+    depends_on:
+      - mysql
+    restart: on-failure
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/company
+      SPRING_DATASOURCE_USERNAME: hieu
+      SPRING_DATASOURCE_PASSWORD: 12345
+    ports:
+      - "8080:8080"
+    # Nếu sau này cần thêm env khác (JWT, FCM, …) thì add vào đây luôn
+
+volumes:
+  mysql_data:
