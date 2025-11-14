@@ -13,7 +13,9 @@ import java.util.UUID;
 
 
 public class Util {
-    public static String UPLOAD_DIR = System.getProperty("user.dir") + "/uploads";
+    public static final String UPLOAD_DIR =
+            System.getenv().getOrDefault("UPLOAD_DIR",
+                    System.getProperty("user.dir") + "/uploads");
 
     public static LocalDate parseDate(String date) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
@@ -28,11 +30,12 @@ public class Util {
         }
         String newName = UUID.randomUUID().toString() + extension;
         Path filePath = Paths.get(UPLOAD_DIR, newName);
-        // Lưu file vào thư mục "uploads"
-        file.transferTo(filePath.toFile());  // Chuyển file vào thư mục
-        String savePath = "http://localhost:8080/uploads/" + newName;
-        return savePath;
+        file.transferTo(filePath.toFile());
+
+        // Chỉ trả về đường dẫn tương đối
+        return "/uploads/" + newName;
     }
+
 }
 
 //startTime , endTime (String) =>
