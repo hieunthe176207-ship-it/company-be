@@ -90,7 +90,7 @@ public class AppConfig implements WebMvcConfigurer {
                 }))
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/auth/**", "/department/**", "/role/**", "/uploads/**", "/form/get/**","/form/get-all" ).permitAll()
+                        .requestMatchers("/auth/**", "/department/**", "/role/**", "/uploads/**", "/form/get/**","/form/get-all", "/test" ).permitAll()
                         .anyRequest().authenticated()
                 )
                 .formLogin(AbstractHttpConfigurer::disable)

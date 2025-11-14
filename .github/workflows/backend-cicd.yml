@@ -1,0 +1,57 @@
+name: Backend CI/CD - Spring Boot
+
+on:
+  push:
+    branches: [ "main" ]      # nếu backend dùng branch khác thì đổi
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Build Spring Boot jar
+        run: |
+          ./mvnw clean package -DskipTests || mvn clean package -DskipTests
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and push backend image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: hieunguyen176207/web-app:backend-company
+
+  deploy-backend:
+    runs-on: ubuntu-latest
+    needs: build-and-push
+    # chỉ deploy khi là push trực tiếp lên main (không deploy khi chỉ mở PR)
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && success()
+
+    steps:
+      - name: SSH to VPS and deploy backend
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script: |
+            cd ~/company-app
+            docker compose pull backend
+            docker compose up -d --force-recreate backend
